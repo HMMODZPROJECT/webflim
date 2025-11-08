@@ -6,96 +6,96 @@
   <title>HM MODZ PROJECT — VIDEO PLAYER</title>
   <style>
     body {
-      margin: 0;
+      background-color: #1e293b;
+      color: #cbd5e1;
       font-family: Arial, sans-serif;
-      background-color: #0f172a;
-      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
       text-align: center;
     }
     h1 {
       color: #60a5fa;
-      margin-top: 30px;
+      margin-bottom: 20px;
     }
     video {
       width: 90%;
-      max-width: 900px;
-      margin-top: 20px;
+      max-width: 700px;
       border-radius: 10px;
+      box-shadow: 0 0 20px #000;
       background: #000;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     }
-    .status {
-      margin-top: 15px;
-      font-size: 15px;
-      color: #94a3b8;
-    }
-    .error {
-      color: #f87171;
-      margin-top: 10px;
+    .warning {
+      color: #facc15;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <h1>HM MODZ PROJECT — VIDEO PLAYER</h1>
-  <video id="player" controls playsinline webkit-playsinline></video>
-  <div id="status" class="status">Memuat file...</div>
-
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js"></script>
-  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+  <video id="player" controls></video>
+  <p id="message" class="warning"></p>
 
   <script>
-    const player = document.getElementById("player");
-    const status = document.getElementById("status");
-
-    const params = new URLSearchParams(window.location.search);
-    const src = params.get("src");
-
-    if (!src) {
-      status.innerHTML = "⚠️ Tambahkan parameter ?src=URL_VIDEO di link kamu.";
-    } else {
-      const videoUrl = decodeURIComponent(src);
-      const lower = videoUrl.toLowerCase();
-
-      // Cek tipe file berdasarkan ekstensi
-      if (lower.endsWith(".m3u8")) {
-        if (Hls.isSupported()) {
-          const hls = new Hls({ enableWorker: true });
-          hls.loadSource(videoUrl);
-          hls.attachMedia(player);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            player.play().catch(() => {});
-          });
-          hls.on(Hls.Events.ERROR, (event, data) => {
-            status.innerHTML = "⚠️ Gagal memuat stream HLS (.m3u8). Kemungkinan server tidak mengizinkan CORS.";
-          });
-        } else if (player.canPlayType("application/vnd.apple.mpegurl")) {
-          player.src = videoUrl;
-          player.play().catch(() => {});
-        } else {
-          status.innerHTML = "❌ Browser kamu tidak mendukung pemutaran HLS (.m3u8).";
-        }
-      } else if (lower.endsWith(".mpd")) {
-        // DASH Stream
-        if (window.dashjs) {
-          const dashPlayer = dashjs.MediaPlayer().create();
-          dashPlayer.initialize(player, videoUrl, true);
-        } else {
-          status.innerHTML = "❌ DASH.js gagal dimuat.";
-        }
-      } else if (
-        lower.endsWith(".mp4") ||
-        lower.endsWith(".webm") ||
-        lower.endsWith(".ogg")
-      ) {
-        // Format video biasa
-        player.src = videoUrl;
-        player.play().catch(() => {});
-      } else {
-        // Tipe file tidak dikenal
-        player.src = videoUrl;
-        player.play().catch(() => {});
-        status.innerHTML = "⚠️ Memutar file langsung (format mungkin tidak didukung browser).";
+    // Database film
+    const movies = [
+      {
+        id: 1,
+        title: "Big Buck Bunny",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      },
+      {
+        id: 2,
+        title: "Sintel",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+      },
+      {
+        id: 3,
+        title: "Tears of Steel",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+      },
+      {
+        id: 4,
+        title: "Elephants Dream",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+      },
+      {
+        id: 5,
+        title: "For Bigger Joyrides",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+      },
+      {
+        id: 6,
+        title: "Sample HLS Stream",
+        url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
       }
+    ];
+
+    // Ambil parameter dari URL
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id"));
+    const src = params.get("src");
+    const player = document.getElementById("player");
+    const message = document.getElementById("message");
+
+    if (src) {
+      // Mode manual ?src=
+      player.src = src;
+      player.play();
+    } else if (id) {
+      // Mode otomatis ?id=
+      const movie = movies.find(m => m.id === id);
+      if (movie) {
+        player.src = movie.url;
+        player.play();
+      } else {
+        message.textContent = "⚠️ ID tidak ditemukan di database.";
+      }
+    } else {
+      message.textContent = "⚠️ Tambahkan parameter ?id= atau ?src= di link kamu.";
     }
   </script>
 </body>
