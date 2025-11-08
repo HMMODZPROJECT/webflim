@@ -1,116 +1,102 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HM MODZ PROJECT — VIDEO PLAYER</title>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
   <style>
     body {
-      background-color: #0f172a;
-      color: #e2e8f0;
-      font-family: "Poppins", sans-serif;
+      background-color: #1e293b;
+      color: #cbd5e1;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
       text-align: center;
-      padding: 20px;
     }
-    h2 {
-      font-weight: 600;
+    h1 {
       color: #60a5fa;
-      margin-bottom: 15px;
-    }
-    #player-container {
-      margin: 0 auto;
-      max-width: 900px;
-      position: relative;
+      margin-bottom: 20px;
     }
     video {
-      width: 100%;
-      height: auto;
+      width: 90%;
+      max-width: 700px;
       border-radius: 10px;
-      background: black;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      box-shadow: 0 0 20px #000;
+      background: #000;
     }
-    small {
-      display: block;
-      margin-top: 10px;
-      color: #94a3b8;
+    .warning {
+      color: #facc15;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h2>HM MODZ PROJECT — VIDEO PLAYER</h2>
-
-  <div id="player-container">
-    <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
-    <small id="statusText">Menunggu sumber video...</small>
-  </div>
+  <h1>HM MODZ PROJECT — VIDEO PLAYER</h1>
+  <video id="player" controls></video>
+  <p id="message" class="warning"></p>
 
   <script>
-    (async function() {
-      const player = document.getElementById('player');
-      const statusText = document.getElementById('statusText');
-      const params = new URLSearchParams(window.location.search);
-      const src = params.get('src') || params.get('url') || params.get('video');
-
-      if (!src) {
-        statusText.innerText = "⚠️ Tambahkan parameter ?src=URL_VIDEO di link kamu.";
-        return;
+    // Database film
+    const movies = [
+      {
+        id: 1,
+        title: "Big Buck Bunny",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      },
+      {
+        id: 2,
+        title: "Sintel",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+      },
+      {
+        id: 3,
+        title: "Tears of Steel",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+      },
+      {
+        id: 4,
+        title: "Elephants Dream",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+      },
+      {
+        id: 5,
+        title: "For Bigger Joyrides",
+        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+      },
+      {
+        id: 6,
+        title: "Sample HLS Stream",
+        url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
       }
+    ];
 
-      const videoUrl = decodeURIComponent(src);
-      const lower = videoUrl.toLowerCase();
+    // Ambil parameter dari URL
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id"));
+    const src = params.get("src");
+    const player = document.getElementById("player");
+    const message = document.getElementById("message");
 
-      function loadScript(src) {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = src;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
-
-      if (lower.endsWith('.m3u8')) {
-        try {
-          await loadScript('https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js');
-          if (window.Hls && Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(videoUrl);
-            hls.attachMedia(player);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => player.play().catch(() => {}));
-            statusText.innerText = "🎞️ Memutar video HLS (.m3u8)";
-          } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-            player.src = videoUrl;
-            player.addEventListener('loadedmetadata', () => player.play().catch(() => {}));
-            statusText.innerText = "🎞️ Memutar video HLS langsung (Safari/iOS)";
-          } else {
-            statusText.innerText = "❌ Browser ini tidak mendukung HLS.";
-          }
-        } catch (err) {
-          console.error(err);
-          statusText.innerText = "❌ Gagal memuat HLS.";
-        }
-      } else if (lower.endsWith('.mpd')) {
-        try {
-          await loadScript('https://cdn.dashjs.org/latest/dash.all.min.js');
-          if (window.dashjs) {
-            const dash = dashjs.MediaPlayer().create();
-            dash.initialize(player, videoUrl, true);
-            statusText.innerText = "🎬 Memutar video DASH (.mpd)";
-          } else {
-            statusText.innerText = "❌ Gagal memuat dash.js.";
-          }
-        } catch (err) {
-          console.error(err);
-          statusText.innerText = "❌ Gagal memutar DASH.";
-        }
+    if (src) {
+      // Mode manual ?src=
+      player.src = src;
+      player.play();
+    } else if (id) {
+      // Mode otomatis ?id=
+      const movie = movies.find(m => m.id === id);
+      if (movie) {
+        player.src = movie.url;
+        player.play();
       } else {
-        player.src = videoUrl;
-        player.addEventListener('loadedmetadata', () => player.play().catch(() => {}));
-        statusText.innerText = "🎥 Memutar file langsung (" + (lower.split('.').pop() || 'unknown') + ")";
+        message.textContent = "⚠️ ID tidak ditemukan di database.";
       }
-    })();
+    } else {
+      message.textContent = "⚠️ Tambahkan parameter ?id= atau ?src= di link kamu.";
+    }
   </script>
 </body>
 </html>
