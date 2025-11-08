@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HM MODZ PROJECT BETA TESTING</title>
+  <meta name="description" content="HM MODZ PROJECT BETA TESTING — Template nonton film (movies.json) with Matrix blue theme." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="matrix-canvas" aria-hidden="true"></canvas>
+
+  <div class="app-wrap">
+    <header class="site-header">
+      <div class="brand">
+        <div class="logo">🎞️</div>
+        <div>
+          <div class="title">HM MODZ PROJECT BETA TESTING</div>
+          <div class="subtitle">Local JSON • No ads • Responsive</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Cari judul film..." aria-label="Search"/>
+        <select id="genreSelect" aria-label="Filter genre">
+          <option value="">Semua Genre</option>
+        </select>
+        <button id="searchBtn" class="btn">Cari</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="left">
+        <div class="toolbar">
+          <button id="allBtn" class="btn outline active">Semua</button>
+        </div>
+
+        <div id="moviesGrid" class="movies-grid" aria-live="polite">
+          <!-- Movie cards injected here -->
+        </div>
+
+        <div id="pager" class="pager">
+          <button id="prevPage" class="btn outline" disabled>Prev</button>
+          <span id="pageInfo">Page 1</span>
+          <button id="nextPage" class="btn outline">Next</button>
+        </div>
+      </section>
+
+      <aside class="right">
+        <div class="info-box">
+          <h4>Info</h4>
+          <p>Ganti <code>movies.json</code> untuk menambah film. Jika URL film bukan file video (.mp4/.m3u8), tombol akan membuka situs asli di tab baru.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <div class="about">Developer: <strong>hmmodzvip</strong></div>
+      <div class="credits">HM MODZ PROJECT BETA TESTING</div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

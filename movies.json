@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Big Buck Bunny",
+    "image": "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "genre": "Animation",
+    "year": "2008"
+  },
+  {
+    "id": 2,
+    "title": "Sintel",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/52/Sintel_poster.jpg",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+    "genre": "Fantasy",
+    "year": "2010"
+  },
+  {
+    "id": 3,
+    "title": "Tears of Steel",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Tears_of_Steel_Poster.jpg",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    "genre": "Sci-Fi",
+    "year": "2012"
+  },
+  {
+    "id": 4,
+    "title": "Elephants Dream",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Elephants_Dream_screenshot.png",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "genre": "Animation",
+    "year": "2006"
+  },
+  {
+    "id": 5,
+    "title": "For Bigger Joyrides",
+    "image": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg",
+    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    "genre": "Short",
+    "year": "2016"
+  },
+  {
+    "id": 6,
+    "title": "Sample HLS Stream",
+    "image": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg",
+    "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+    "genre": "HLS",
+    "year": "2010"
+  }
+]
