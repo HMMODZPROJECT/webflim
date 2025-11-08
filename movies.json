@@ -3,7 +3,7 @@
     "id": 1,
     "title": "Big Buck Bunny",
     "image": "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
-    "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "url": "https://film-server-hmmodz.netlify.app/watch.html?src=https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     "genre": "Animation",
     "year": "2008"
   },
