@@ -1,50 +1,108 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Watch — HM MODZ PROJECT BETA TESTING</title>
-  <meta name="description" content="Player — HM MODZ PROJECT BETA TESTING" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HM MODZ PROJECT — VIDEO PLAYER</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <style>
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: "Poppins", sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #player-container {
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      background: black;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+    #playerHint {
+      color: #94a3b8;
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <canvas id="matrix-canvas" aria-hidden="true"></canvas>
+  <h2>HM MODZ PROJECT — VIDEO PLAYER</h2>
 
-  <div class="app-wrap">
-    <header class="site-header small">
-      <div class="brand">
-        <div class="logo">🎞️</div>
-        <div>
-          <div class="title">HM MODZ PROJECT BETA TESTING</div>
-        </div>
-      </div>
-      <div class="controls">
-        <a href="index.html" class="btn outline">Kembali</a>
-      </div>
-    </header>
-
-    <main class="watch-container">
-      <section class="player-section">
-        <div id="playerBox" class="player-box">
-          <div class="player-empty">Memuat video...</div>
-        </div>
-        <div id="videoMeta" class="video-meta"></div>
-      </section>
-
-      <section class="recommend-section">
-        <h3>Film Lainnya</h3>
-        <div id="recommendRow" class="recommend-row">
-          <!-- horizontal scroll items -->
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="about">Developer: <strong>hmmodzvip</strong></div>
-      <div class="credits">HM MODZ PROJECT BETA TESTING</div>
-    </footer>
+  <div id="player-container">
+    <video id="player" controls playsinline webkit-playsinline x-webkit-airplay="allow" preload="metadata" crossorigin="anonymous"></video>
+    <small id="playerHint">Mendukung format: MP4, HLS (.m3u8), dan DASH (.mpd)</small>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+  (async function(){
+    const player = document.getElementById('player');
+    const hint = document.getElementById('playerHint');
+    const params = new URLSearchParams(location.search);
+    const srcParam = params.get('src') || params.get('url') || params.get('file') || params.get('video') || params.get('id');
+
+    if(!srcParam){
+      hint.innerText = "Tidak ada URL video ditemukan di parameter (?src=...)";
+      return;
+    }
+
+    const url = decodeURIComponent(srcParam);
+    const lower = url.split('?')[0].split('#')[0].toLowerCase();
+
+    function loadScript(u){ 
+      return new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src=u; s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+    }
+
+    if(lower.endsWith('.m3u8')){
+      try {
+        await loadScript('https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js');
+        if(window.Hls && Hls.isSupported()){
+          const hls = new Hls();
+          hls.loadSource(url);
+          hls.attachMedia(player);
+          hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play().catch(()=>{}));
+          hint.innerText = "Memutar HLS (.m3u8) stream";
+        } else if(player.canPlayType('application/vnd.apple.mpegurl')){
+          player.src = url;
+          player.addEventListener('loadedmetadata', ()=>player.play().catch(()=>{}));
+          hint.innerText = "Memutar HLS langsung (Safari/iOS)";
+        } else {
+          hint.innerText = "Browser ini tidak mendukung HLS";
+        }
+      } catch(e){
+        console.error(e);
+        hint.innerText = "Gagal memuat HLS";
+      }
+    } else if(lower.endsWith('.mpd')){
+      try {
+        await loadScript('https://cdn.dashjs.org/latest/dash.all.min.js');
+        if(window.dashjs){
+          const dash = dashjs.MediaPlayer().create();
+          dash.initialize(player, url, true);
+          hint.innerText = "Memutar DASH (.mpd) stream";
+        } else {
+          hint.innerText = "Gagal memuat dash.js";
+        }
+      } catch(e){
+        console.error(e);
+        hint.innerText = "Gagal memutar DASH";
+      }
+    } else {
+      player.src = url;
+      player.addEventListener('loadedmetadata', ()=>player.play().catch(()=>{}));
+      hint.innerText = "Memutar file langsung (" + (lower.split('.').pop() || 'unknown') + ")";
+    }
+  })();
+  </script>
 </body>
 </html>
