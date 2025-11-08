@@ -41,7 +41,7 @@
   },
   {
     "id": 6,
-    "title": "Sample HLS Stream",
+    "title": "Test Flim hmmodz",
     "image": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg",
     "url": "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
     "genre": "HLS",
