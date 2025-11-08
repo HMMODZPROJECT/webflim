@@ -8,27 +8,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
   <style>
     body {
-      background: #020617;
+      background-color: #0f172a;
       color: #e2e8f0;
       font-family: "Poppins", sans-serif;
       text-align: center;
       padding: 20px;
     }
+    h2 {
+      font-weight: 600;
+      color: #60a5fa;
+      margin-bottom: 15px;
+    }
     #player-container {
-      margin: 20px auto;
+      margin: 0 auto;
       max-width: 900px;
+      position: relative;
     }
     video {
       width: 100%;
       height: auto;
-      background: black;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      background: black;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
-    #playerHint {
-      color: #94a3b8;
-      margin-top: 10px;
+    small {
       display: block;
+      margin-top: 10px;
+      color: #94a3b8;
     }
   </style>
 </head>
@@ -36,73 +42,75 @@
   <h2>HM MODZ PROJECT — VIDEO PLAYER</h2>
 
   <div id="player-container">
-    <video id="player" controls playsinline webkit-playsinline x-webkit-airplay="allow" preload="metadata" crossorigin="anonymous"></video>
-    <small id="playerHint">Mendukung format: MP4, HLS (.m3u8), dan DASH (.mpd)</small>
+    <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
+    <small id="statusText">Menunggu sumber video...</small>
   </div>
 
   <script>
-  (async function(){
-    const player = document.getElementById('player');
-    const hint = document.getElementById('playerHint');
-    const params = new URLSearchParams(location.search);
-    const srcParam = params.get('src') || params.get('url') || params.get('file') || params.get('video') || params.get('id');
+    (async function() {
+      const player = document.getElementById('player');
+      const statusText = document.getElementById('statusText');
+      const params = new URLSearchParams(window.location.search);
+      const src = params.get('src') || params.get('url') || params.get('video');
 
-    if(!srcParam){
-      hint.innerText = "Tidak ada URL video ditemukan di parameter (?src=...)";
-      return;
-    }
-
-    const url = decodeURIComponent(srcParam);
-    const lower = url.split('?')[0].split('#')[0].toLowerCase();
-
-    function loadScript(u){ 
-      return new Promise((res,rej)=>{
-        const s=document.createElement('script');
-        s.src=u; s.onload=res; s.onerror=rej;
-        document.head.appendChild(s);
-      });
-    }
-
-    if(lower.endsWith('.m3u8')){
-      try {
-        await loadScript('https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js');
-        if(window.Hls && Hls.isSupported()){
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(player);
-          hls.on(Hls.Events.MANIFEST_PARSED, ()=>player.play().catch(()=>{}));
-          hint.innerText = "Memutar HLS (.m3u8) stream";
-        } else if(player.canPlayType('application/vnd.apple.mpegurl')){
-          player.src = url;
-          player.addEventListener('loadedmetadata', ()=>player.play().catch(()=>{}));
-          hint.innerText = "Memutar HLS langsung (Safari/iOS)";
-        } else {
-          hint.innerText = "Browser ini tidak mendukung HLS";
-        }
-      } catch(e){
-        console.error(e);
-        hint.innerText = "Gagal memuat HLS";
+      if (!src) {
+        statusText.innerText = "⚠️ Tambahkan parameter ?src=URL_VIDEO di link kamu.";
+        return;
       }
-    } else if(lower.endsWith('.mpd')){
-      try {
-        await loadScript('https://cdn.dashjs.org/latest/dash.all.min.js');
-        if(window.dashjs){
-          const dash = dashjs.MediaPlayer().create();
-          dash.initialize(player, url, true);
-          hint.innerText = "Memutar DASH (.mpd) stream";
-        } else {
-          hint.innerText = "Gagal memuat dash.js";
-        }
-      } catch(e){
-        console.error(e);
-        hint.innerText = "Gagal memutar DASH";
+
+      const videoUrl = decodeURIComponent(src);
+      const lower = videoUrl.toLowerCase();
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
       }
-    } else {
-      player.src = url;
-      player.addEventListener('loadedmetadata', ()=>player.play().catch(()=>{}));
-      hint.innerText = "Memutar file langsung (" + (lower.split('.').pop() || 'unknown') + ")";
-    }
-  })();
+
+      if (lower.endsWith('.m3u8')) {
+        try {
+          await loadScript('https://cdn.jsdelivr.net/npm/hls.js@1.5.0/dist/hls.min.js');
+          if (window.Hls && Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoUrl);
+            hls.attachMedia(player);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => player.play().catch(() => {}));
+            statusText.innerText = "🎞️ Memutar video HLS (.m3u8)";
+          } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+            player.src = videoUrl;
+            player.addEventListener('loadedmetadata', () => player.play().catch(() => {}));
+            statusText.innerText = "🎞️ Memutar video HLS langsung (Safari/iOS)";
+          } else {
+            statusText.innerText = "❌ Browser ini tidak mendukung HLS.";
+          }
+        } catch (err) {
+          console.error(err);
+          statusText.innerText = "❌ Gagal memuat HLS.";
+        }
+      } else if (lower.endsWith('.mpd')) {
+        try {
+          await loadScript('https://cdn.dashjs.org/latest/dash.all.min.js');
+          if (window.dashjs) {
+            const dash = dashjs.MediaPlayer().create();
+            dash.initialize(player, videoUrl, true);
+            statusText.innerText = "🎬 Memutar video DASH (.mpd)";
+          } else {
+            statusText.innerText = "❌ Gagal memuat dash.js.";
+          }
+        } catch (err) {
+          console.error(err);
+          statusText.innerText = "❌ Gagal memutar DASH.";
+        }
+      } else {
+        player.src = videoUrl;
+        player.addEventListener('loadedmetadata', () => player.play().catch(() => {}));
+        statusText.innerText = "🎥 Memutar file langsung (" + (lower.split('.').pop() || 'unknown') + ")";
+      }
+    })();
   </script>
 </body>
 </html>
